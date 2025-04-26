@@ -1,0 +1,648 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام التشفير بالبلوكشين</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            direction: rtl;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #333;
+            text-align: center;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .tabs {
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background-color: #f1f1f1;
+            border-radius: 4px 4px 0 0;
+        }
+        .tabs button {
+            background-color: inherit;
+            float: right;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 16px;
+            transition: 0.3s;
+            color: #333;
+        }
+        .tabs button:hover {
+            background-color: #ddd;
+        }
+        .tabs button.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+        }
+        .animation-container {
+            width: 100%;
+            height: 300px;
+            margin: 20px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+            background-color: #f9f9f9;
+        }
+        .block {
+            position: absolute;
+            width: 100px;
+            height: 60px;
+            background-color: #4CAF50;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 5px;
+            font-size: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: all 1s ease;
+        }
+        .node {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background-color: #2196F3;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        .text-chunk {
+            position: absolute;
+            padding: 10px;
+            background-color: #ff9800;
+            color: white;
+            border-radius: 4px;
+            font-size: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: all 1s ease;
+        }
+        .result-container {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: right;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .loading {
+            text-align: center;
+            font-size: 18px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>نظام التشفير بالبلوكشين</h1>
+        
+        <div class="tabs">
+            <button class="tablinks active" onclick="openTab(event, 'encrypt-tab')">تشفير النص</button>
+            <button class="tablinks" onclick="openTab(event, 'decrypt-tab')">فك التشفير</button>
+            <button class="tablinks" onclick="openTab(event, 'crack-tab')">كسر التشفير</button>
+            <button class="tablinks" onclick="openTab(event, 'blockchain-tab')">حالة البلوكشين</button>
+        </div>
+        
+        <div id="encrypt-tab" class="tab-content" style="display: block;">
+            <h2>تشفير النص باستخدام البلوكشين</h2>
+            <textarea id="text-to-encrypt" placeholder="أدخل النص المراد تشفيره هنا..."></textarea>
+            <button onclick="encryptText()">تشفير النص</button>
+            
+            <div class="animation-container" id="encryption-animation"></div>
+            
+            <div class="result-container" id="encryption-result" style="display: none;">
+                <h3>نتيجة التشفير</h3>
+                <p><strong>العقدة المستخدمة:</strong> <span id="used-node"></span></p>
+                <p><strong>عدد الكتل:</strong> <span id="blocks-count"></span></p>
+                <table id="encrypted-chunks-table">
+                    <thead>
+                        <tr>
+                            <th>النص الأصلي</th>
+                            <th>النص المشفر</th>
+                            <th>مفتاح التشفير</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div id="decrypt-tab" class="tab-content">
+            <h2>فك تشفير النص</h2>
+            <button onclick="decryptText()">فك تشفير النص الأخير</button>
+            
+            <div class="animation-container" id="decryption-animation"></div>
+            
+            <div class="result-container" id="decryption-result" style="display: none;">
+                <h3>نتيجة فك التشفير</h3>
+                <p><strong>النص الأصلي:</strong> <span id="decrypted-text"></span></p>
+            </div>
+        </div>
+        
+        <div id="crack-tab" class="tab-content">
+            <h2>محاكاة كسر التشفير</h2>
+            <button onclick="crackEncryption()">محاولة كسر التشفير</button>
+            
+            <div class="animation-container" id="crack-animation"></div>
+            
+            <div class="result-container" id="crack-result" style="display: none;">
+                <h3>نتيجة كسر التشفير</h3>
+                <table id="cracked-chunks-table">
+                    <thead>
+                        <tr>
+                            <th>النص المشفر</th>
+                            <th>النص بعد الكسر</th>
+                            <th>المفتاح المكتشف</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div id="blockchain-tab" class="tab-content">
+            <h2>حالة البلوكشين</h2>
+            <button onclick="getBlockchainStatus()">تحديث الحالة</button>
+            
+            <div class="result-container" id="blockchain-status" style="display: none;">
+                <h3>حالة العقد</h3>
+                <div id="blockchain-details"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let lastEncryptionResult = null;
+        
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+        
+        function encryptText() {
+            const text = document.getElementById("text-to-encrypt").value;
+            if (!text) {
+                alert("الرجاء إدخال نص للتشفير");
+                return;
+            }
+            
+            // إظهار التحميل
+            document.getElementById("encryption-animation").innerHTML = "<div class='loading'>جاري التشفير...</div>";
+            document.getElementById("encryption-result").style.display = "none";
+            
+            fetch('/encrypt', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ text: text }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                lastEncryptionResult = data;
+                
+                // عرض النتائج
+                document.getElementById("used-node").textContent = data.node_id;
+                document.getElementById("blocks-count").textContent = data.blockchain_length;
+                
+                const tableBody = document.getElementById("encrypted-chunks-table").getElementsByTagName("tbody")[0];
+                tableBody.innerHTML = "";
+                
+                data.chunks.forEach(chunk => {
+                    const row = tableBody.insertRow();
+                    row.insertCell(0).textContent = chunk.original;
+                    row.insertCell(1).textContent = chunk.encrypted;
+                    row.insertCell(2).textContent = chunk.key;
+                });
+                
+                document.getElementById("encryption-result").style.display = "block";
+                
+                // إنشاء الرسوم المتحركة
+                animateEncryptionProcess(data.chunks);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById("encryption-animation").innerHTML = "<div class='loading'>حدث خطأ أثناء التشفير</div>";
+            });
+        }
+        
+        function animateEncryptionProcess(chunks) {
+            const container = document.getElementById("encryption-animation");
+            container.innerHTML = "";
+            
+            // رسم العقد
+            const nodes = [];
+            for (let i = 0; i < 3; i++) {
+                const node = document.createElement("div");
+                node.className = "node";
+                node.textContent = "Node " + (i+1);
+                node.style.left = (150 + i * 300) + "px";
+                node.style.top = "40px";
+                container.appendChild(node);
+                nodes.push(node);
+            }
+            
+            // رسم وتحريك الكتل النصية
+            chunks.forEach((chunk, index) => {
+                setTimeout(() => {
+                    // إنشاء كتلة النص الأصلي
+                    const textChunk = document.createElement("div");
+                    textChunk.className = "text-chunk";
+                    textChunk.textContent = chunk.original;
+                    textChunk.style.left = "50px";
+                    textChunk.style.top = (120 + index * 60) + "px";
+                    container.appendChild(textChunk);
+                    
+                    // تحريك إلى عقدة عشوائية
+                    setTimeout(() => {
+                        const randomNodeIndex = Math.floor(Math.random() * nodes.length);
+                        const nodeRect = nodes[randomNodeIndex].getBoundingClientRect();
+                        const containerRect = container.getBoundingClientRect();
+                        
+                        textChunk.style.left = (nodeRect.left - containerRect.left - 50) + "px";
+                        textChunk.style.top = (nodeRect.top - containerRect.top + 40) + "px";
+                        
+                        // إنشاء الكتلة المشفرة
+                        setTimeout(() => {
+                            textChunk.style.backgroundColor = "#9c27b0";
+                            textChunk.textContent = chunk.encrypted;
+                            
+                            // إضافة الكتلة إلى البلوكشين
+                            setTimeout(() => {
+                                const block = document.createElement("div");
+                                block.className = "block";
+                                block.textContent = "Block " + index;
+                                block.style.left = (nodeRect.left - containerRect.left - 50) + "px";
+                                block.style.top = (nodeRect.top - containerRect.top + 100) + "px";
+                                container.appendChild(block);
+                                
+                                setTimeout(() => {
+                                    block.style.left = (750 - index * 20) + "px";
+                                    block.style.top = (200 + index * 30) + "px";
+                                }, 500);
+                            }, 1000);
+                        }, 1000);
+                    }, 1000);
+                }, index * 1000);
+            });
+        }
+        
+        function decryptText() {
+            if (!lastEncryptionResult) {
+                alert("قم بتشفير نص أولاً");
+                return;
+            }
+            
+            // إظهار التحميل
+            document.getElementById("decryption-animation").innerHTML = "<div class='loading'>جاري فك التشفير...</div>";
+            document.getElementById("decryption-result").style.display = "none";
+            
+            fetch('/decrypt', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    chunks: lastEncryptionResult.chunks,
+                    node_id: lastEncryptionResult.node_id
+                }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("decrypted-text").textContent = data.decrypted_text;
+                document.getElementById("decryption-result").style.display = "block";
+                
+                // إنشاء الرسوم المتحركة
+                animateDecryptionProcess(lastEncryptionResult.chunks, data.decrypted_text);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById("decryption-animation").innerHTML = "<div class='loading'>حدث خطأ أثناء فك التشفير</div>";
+            });
+        }
+        
+        function animateDecryptionProcess(chunks, decryptedText) {
+            const container = document.getElementById("decryption-animation");
+            container.innerHTML = "";
+            
+            // رسم البلوكشين
+            const blockchain = document.createElement("div");
+            blockchain.style.position = "absolute";
+            blockchain.style.left = "650px";
+            blockchain.style.top = "50px";
+            blockchain.style.width = "120px";
+            blockchain.style.height = "200px";
+            blockchain.style.backgroundColor = "#795548";
+            blockchain.style.borderRadius = "5px";
+            blockchain.style.color = "white";
+            blockchain.style.textAlign = "center";
+            blockchain.style.paddingTop = "10px";
+            blockchain.innerHTML = "Blockchain";
+            container.appendChild(blockchain);
+            
+            // رسم العقدة
+            const node = document.createElement("div");
+            node.className = "node";
+            node.textContent = lastEncryptionResult.node_id;
+            node.style.left = "350px";
+            node.style.top = "110px";
+            container.appendChild(node);
+            
+            // رسم وتحريك الكتل المشفرة
+            chunks.forEach((chunk, index) => {
+                setTimeout(() => {
+                    // إنشاء كتلة النص المشفر
+                    const textChunk = document.createElement("div");
+                    textChunk.className = "text-chunk";
+                    textChunk.textContent = chunk.encrypted;
+                    textChunk.style.backgroundColor = "#9c27b0";
+                    textChunk.style.left = "700px";
+                    textChunk.style.top = (100 + index * 40) + "px";
+                    container.appendChild(textChunk);
+                    
+                    // تحريك إلى العقدة
+                    setTimeout(() => {
+                        textChunk.style.left = "350px";
+                        textChunk.style.top = "110px";
+                        
+                        // فك التشفير
+                        setTimeout(() => {
+                            textChunk.style.backgroundColor = "#4CAF50";
+                            textChunk.textContent = chunk.original;
+                            
+                            // تحريك إلى النتيجة النهائية
+                            setTimeout(() => {
+                                textChunk.style.left = "100px";
+                                textChunk.style.top = (100 + index * 40) + "px";
+                            }, 1000);
+                        }, 1000);
+                    }, 1000);
+                }, index * 1000);
+            });
+            
+            // عرض النص الأصلي النهائي
+            setTimeout(() => {
+                const result = document.createElement("div");
+                result.style.position = "absolute";
+                result.style.left = "50px";
+                result.style.top = "230px";
+                result.style.width = "200px";
+                result.style.padding = "10px";
+                result.style.backgroundColor = "#2196F3";
+                result.style.color = "white";
+                result.style.borderRadius = "4px";
+                result.textContent = "النص الأصلي: " + decryptedText;
+                container.appendChild(result);
+            }, (chunks.length + 3) * 1000);
+        }
+        
+        function crackEncryption() {
+            if (!lastEncryptionResult) {
+                alert("قم بتشفير نص أولاً");
+                return;
+            }
+            
+            // إظهار التحميل
+            document.getElementById("crack-animation").innerHTML = "<div class='loading'>جاري محاولة كسر التشفير...</div>";
+            document.getElementById("crack-result").style.display = "none";
+            
+            fetch('/crack', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ chunks: lastEncryptionResult.chunks }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById("cracked-chunks-table").getElementsByTagName("tbody")[0];
+                tableBody.innerHTML = "";
+                
+                data.cracked_chunks.forEach(chunk => {
+                    const row = tableBody.insertRow();
+                    row.insertCell(0).textContent = chunk.encrypted;
+                    row.insertCell(1).textContent = chunk.cracked;
+                    row.insertCell(2).textContent = chunk.key_found;
+                });
+                
+                document.getElementById("crack-result").style.display = "block";
+                
+                // إنشاء الرسوم المتحركة
+                animateCrackingProcess(data.cracked_chunks);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById("crack-animation").innerHTML = "<div class='loading'>حدث خطأ أثناء محاولة كسر التشفير</div>";
+            });
+        }
+        
+        function animateCrackingProcess(crackedChunks) {
+            const container = document.getElementById("crack-animation");
+            container.innerHTML = "";
+            
+            // رسم أداة كسر التشفير
+            const cracker = document.createElement("div");
+            cracker.style.position = "absolute";
+            cracker.style.left = "350px";
+            cracker.style.top = "110px";
+            cracker.style.width = "100px";
+            cracker.style.height = "100px";
+            cracker.style.backgroundColor = "#f44336";
+            cracker.style.borderRadius = "5px";
+            cracker.style.color = "white";
+            cracker.style.display = "flex";
+            cracker.style.alignItems = "center";
+            cracker.style.justifyContent = "center";
+            cracker.textContent = "Cracker";
+            container.appendChild(cracker);
+            
+            // رسم وتحريك الكتل المشفرة
+            crackedChunks.forEach((chunk, index) => {
+                setTimeout(() => {
+                    // إنشاء كتلة النص المشفر
+                    const textChunk = document.createElement("div");
+                    textChunk.className = "text-chunk";
+                    textChunk.textContent = chunk.encrypted;
+                    textChunk.style.backgroundColor = "#9c27b0";
+                    textChunk.style.left = "650px";
+                    textChunk.style.top = (100 + index * 40) + "px";
+                    container.appendChild(textChunk);
+                    
+                    // تحريك إلى أداة الكسر
+                    setTimeout(() => {
+                        textChunk.style.left = "350px";
+                        textChunk.style.top = "110px";
+                        
+                        // رسم عملية البحث عن المفتاح
+                        const keySearch = document.createElement("div");
+                        keySearch.style.position = "absolute";
+                        keySearch.style.left = "500px";
+                        keySearch.style.top = (50 + index * 30) + "px";
+                        keySearch.style.backgroundColor = "#ff9800";
+                        keySearch.style.color = "white";
+                        keySearch.style.padding = "5px";
+                        keySearch.style.borderRadius = "3px";
+                        keySearch.style.fontSize = "10px";
+                        keySearch.textContent = "جاري البحث عن المفتاح...";
+                        container.appendChild(keySearch);
+                        
+                        // تحديث بعد العثور على المفتاح
+                        setTimeout(() => {
+                            keySearch.textContent = "تم العثور على المفتاح: " + chunk.key_found.substring(0, 8) + "...";
+                            keySearch.style.backgroundColor = "#4CAF50";
+                            
+                            // فك التشفير
+                            setTimeout(() => {
+                                textChunk.style.backgroundColor = "#4CAF50";
+                                textChunk.textContent = chunk.cracked;
+                                
+                                // تحريك إلى النتيجة النهائية
+                                setTimeout(() => {
+                                    textChunk.style.left = "100px";
+                                    textChunk.style.top = (100 + index * 40) + "px";
+                                }, 1000);
+                            }, 1000);
+                        }, 2000);
+                    }, 1000);
+                }, index * 1000);
+            });
+            
+            // عرض نتيجة الكسر النهائية
+            setTimeout(() => {
+                const result = document.createElement("div");
+                result.style.position = "absolute";
+                result.style.left = "50px";
+                result.style.top = "230px";
+                result.style.width = "200px";
+                result.style.padding = "10px";
+                result.style.backgroundColor = "#2196F3";
+                result.style.color = "white";
+                result.style.borderRadius = "4px";
+                result.textContent = "تم كسر التشفير بنجاح!";
+                container.appendChild(result);
+            }, (crackedChunks.length + 3) * 1000);
+        }
+        
+        function getBlockchainStatus() {
+            // إظهار التحميل
+            document.getElementById("blockchain-status").style.display = "none";
+            
+            fetch('/blockchain_status')
+            .then(response => response.json())
+            .then(data => {
+                const detailsContainer = document.getElementById("blockchain-details");
+                detailsContainer.innerHTML = "";
+                
+                for (const nodeId in data) {
+                    const nodeInfo = data[nodeId];
+                    
+                    const nodeDiv = document.createElement("div");
+                    nodeDiv.style.border = "1px solid #ddd";
+                    nodeDiv.style.padding = "10px";
+                    nodeDiv.style.margin = "10px 0";
+                    nodeDiv.style.borderRadius = "4px";
+                    
+                    const nodeTitle = document.createElement("h4");
+                    nodeTitle.textContent = `العقدة: ${nodeId}`;
+                    nodeTitle.style.margin = "0 0 10px 0";
+                    nodeDiv.appendChild(nodeTitle);
+                    
+                    const chainLength = document.createElement("p");
+                    chainLength.textContent = `طول السلسلة: ${nodeInfo.chain_length}`;
+                    nodeDiv.appendChild(chainLength);
+                    
+                    if (nodeInfo.last_block) {
+                        const lastBlock = document.createElement("div");
+                        lastBlock.innerHTML = `<strong>آخر كتلة:</strong>
+                            <ul>
+                                <li>رقم الكتلة: ${nodeInfo.last_block.index}</li>
+                                <li>الوقت: ${new Date(nodeInfo.last_block.timestamp * 1000).toLocaleString()}</li>
+                                <li>العقدة المنشئة: ${nodeInfo.last_block.node}</li>
+                            </ul>`;
+                        nodeDiv.appendChild(lastBlock);
+                    }
+                    
+                    detailsContainer.appendChild(nodeDiv);
+                }
+                
+                document.getElementById("blockchain-status").style.display = "block";
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const detailsContainer = document.getElementById("blockchain-details");
+                detailsContainer.innerHTML = "<div class='loading'>حدث خطأ أثناء جلب حالة البلوكشين</div>";
+                document.getElementById("blockchain-status").style.display = "block";
+            });
+        }
+    </script>
+</body>
+</html>
