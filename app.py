@@ -74,7 +74,8 @@ class Blockchain:
             encrypted_chunks.append({
                 'original': chunk,
                 'encrypted': encrypted_chunk,
-                'key': encryption_key
+                'key': encryption_key,
+                'previous_hash': previous_hash  # إضافة قيمة previous_hash هنا
             })
             
             # إنشاء كتلة جديدة بالنص المشفر
@@ -176,6 +177,7 @@ def crack():
     
     return jsonify({'cracked_chunks': cracked_chunks})
 
+# حذف الطريقة التالية من app.py
 @app.route('/blockchain_status', methods=['GET'])
 def blockchain_status():
     status = {}
